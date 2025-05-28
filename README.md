@@ -7,7 +7,7 @@ A fun and interactive gaming web application featuring two popular party games:
 
 ## Project Overview
 
-This repository contains the source code for the **TBH Gaming Web App**, built using [mention the tech stack, e.g., React, Node.js, MongoDB].  
+This repository contains the source code for the **TBH Gaming Web App**, built using React, Node.js, Express, Socket.io, and MySQL.  
 The app provides a user-friendly interface for players to engage in exciting gameplay, compete with friends, and track scores.
 
 ## Features
