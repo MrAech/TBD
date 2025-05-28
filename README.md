@@ -4,6 +4,7 @@ A fun and interactive gaming web application featuring two popular party games:
 
 1. **Raja Rani Bajeer**: A thrilling game of strategy and luck.  
 2. **Name Place Animal**: A classic game of word association and quick thinking.
+3. **Tick Tac Toe**: A simple game where two player plays one with ❌ and one with ⭕.
 
 ## Project Overview
 
