@@ -1,0 +1,39 @@
+{
+  "name": "tbd",
+  "version": "1.0.0",
+  "description": "Welcome to the Game Hub project! This repository contains the Implementation for our multiplayer gaming platform.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "cd src/client && npm run build && move build ../../public",
+    "dev:server": "nodemon server.js",
+    "dev:client": "cd src/client && npm start",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "prod": "npm run build && npm start",
+    "install:all": "npm install && cd src/client && npm install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MrAech/TBD.git"
+  },
+  "keywords": [],
+  "author": "Happy Sharma",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MrAech/TBD/issues"
+  },
+  "homepage": "https://github.com/MrAech/TBD#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.2",
+    "@types/node": "^22.15.24",
+    "concurrently": "^9.1.2",
+    "nodeman": "^1.1.2",
+    "nodemon": "^3.1.10",
+    "typescript": "^5.8.3"
+  }
+}
