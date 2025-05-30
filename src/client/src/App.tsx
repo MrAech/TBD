@@ -4,7 +4,7 @@ import './App.css';
 function App() {
   const [backendMessage, setBackendMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const apiUrl = process.env.REACT_APP_API_URL;
+  const apiUrl = process.env.REACT_APP_API_ENDPOINT;
 
   const testBackend = async () => {
     setIsLoading(true);
