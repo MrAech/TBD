@@ -9,8 +9,8 @@ function App() {
   const testBackend = async () => {
     setIsLoading(true);
     try {
-      // Now apiUrl already includes /api/
-      const response = await fetch(`${apiUrl}/test`);
+
+      const response = await fetch(`${apiUrl}/api/test`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
