@@ -1,43 +1,21 @@
 import {useState, useEffect} from 'react';
 import {Home, Gift, Clock, Menu, User} from 'lucide-react';
-import {useAnimation} from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
-import {
-    namePlaceThumbnail,
-    rajaRaniThumbnail,
-    ticTacToeThumbnail,
-} from '../assets/assets.ts';
-import GameCard from '../components/GameCard.tsx';
+import GamesView from "../components/views/GamesView";
+import GiftView from "../components/views/GiftView";
+import HistoryView from "../components/views/HistoryView";
+import MenuDropdown from "../components/MenuDropdown";
+import LoginPrompt from "../components/prompts/LoginPrompt";
+import {resetStroragePref, getStoragePref} from '../utils/storage'
 
-// todo: Add More Games and make it dynamic will try to Integrate with DB later
-const games = [
-    {
-        title: "Name, Place, Animal and Object",
-        playerCount: "2< players",
-        image: namePlaceThumbnail
-    },
-    {
-        title: "Raja, Rani, Bajer and Choor",
-        playerCount: "3< players",
-        image: rajaRaniThumbnail
-    },
-    {
-        title: "Tic Tac Toe",
-        playerCount: "2 players",
-        image: ticTacToeThumbnail
-    }
-];
-
-
-
-interface NaveIconProp{
+interface NavIconProp{
     icon: LucideIcon;
     label: string;
     isActive: boolean;
     onClick: () => void;
 }
 
-const NavIcon = ({ icon: Icon, label, isActive, onClick}: NaveIconProp) => (
+const NavIcon = ({ icon: Icon, label, isActive, onClick }: NavIconProp) => (
     <button
         onClick={onClick}
         className={`flex items-center justify-center p-3 rounded-md transition-colors duration-300
@@ -50,84 +28,156 @@ const NavIcon = ({ icon: Icon, label, isActive, onClick}: NaveIconProp) => (
 );
 
 export default function GameMenu() {
-    const [activePage, setActivePage] = useState('home');
-    const animationControls = useAnimation();
+   const [activePage, setactivePage] = useState('home');
+   const [intendedPage, setIntendedPage] = useState<string | null>(null);
+   const [showMenu, setShowMenu] = useState(false);
+   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+   const [hasStoragePref, setHasStoragePref] = useState(
+       getStoragePref() ! == undefined
+   );
+
+   const updateStoragePref = () =>{
+       setHasStoragePref(getStoragePref() !== undefined);
+   };
 
     useEffect(() => {
-        animationControls.start({
-            y:[0, -5, 0],
-            transition: {
-                repeat: Infinity,
-                duration: 2,
-                ease: "easeInOut"
-            },
-        });
-    }, [animationControls]);
+        updateStoragePref();
+        window.addEventListener('storage', updateStoragePref);
+        return () => window.removeEventListener('storage', updateStoragePref);
+    }, []);
 
-    const navItems: Array<{ label: string; icon: LucideIcon}> = [
-        {label: "home", icon: Home},
-        {label: "gift", icon: Gift},
-        {label: "time", icon: Clock},
+    const handleReset = () =>{
+        resetStroragePref();
+        setHasStoragePref(false);
+        setactivePage('home');
+        setIntendedPage(null);
+    };
+
+    const handlePageChange =(page: string) =>{
+        if(page ==='home'){
+            setShowLoginPrompt(false);
+            setIntendedPage(null);
+            setactivePage('home');
+            return;
+        }
+
+        if((page === 'gift' || page === 'time') && !hasStoragePref){
+            setIntendedPage(page);
+            setShowLoginPrompt(true);
+            return;
+        }
+
+        setactivePage(page);
+        setIntendedPage(null);
+    };
+
+    const handleLoginClose = () =>{
+        setShowLoginPrompt(false);
+        setIntendedPage(null);
+    }
+
+    const handlgeLoginSuccess = () => {
+        setShowLoginPrompt(false);
+        updateStoragePref();
+        if(intendedPage){
+            setactivePage(intendedPage);
+            setIntendedPage(null);
+        }
+    };
+
+    const navItems: Array<{label: string; icon: LucideIcon}> =[
+        {label: 'home', icon: Home},
+        {label: 'gift', icon: Gift},
+        {label: 'time', icon: Clock},
     ];
 
-    return (
-        <div className="flex flex-col min-h-screen bg-blue-100 items-center w-full">
-            {/* NavBar */}
-            <div
-                className="sticky top-0 w-full shadow-md z-10"
-                style={{backgroundColor: "#F28f8f"}}
-            >
-                <div className="flex w-full px-4 py-3  items-center justify-between">
-                    {/* Left: profile icon */}
-                    <div className="flex-none">
-                        <button
-                            aria-label="Profile"
-                            className="text-black p-2 rounded-full shadow-md"
-                        >
-                            <User className="w-6 h-6"/>
-                        </button>
-                    </div>
+    const renderContent = () =>{
+        switch (activePage){
+            case 'gift':
+                return hasStoragePref ? <GiftView onStorageChange={updateStoragePref}/> : null;
+            case 'time':
+                return hasStoragePref ? <HistoryView onStorageChange={updateStoragePref}/> : null;
+            default:
+                return <GamesView />;
+        }
+    };
 
-                    {/*Center: Main Mav icon for That Page Only */}
-                    <div className="flex-1 flex justify-center items-center gap-6">
-                        {
-                            navItems.map(({ label, icon }) => (
+
+    return (
+        <>
+            <div className="flex flex-col min-h-screen bg-blue-100 items-center w-full">
+                {/* NavBar */}
+                <div
+                    className="sticky top-0 w-full shadow-md z-50"
+                    style={{ backgroundColor: "#F28f8f" }}
+                >
+                    <div className="flex w-full px-4 py-3 items-center justify-between">
+                        {/* Left: profile icon */}
+                        <div className="flex-none">
+                            <button
+                                aria-label="Profile"
+                                className="text-black p-2 rounded-full shadow-md"
+                            >
+                                <User className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {/* Center: Main Nav icons */}
+                        <div className="flex-1 flex justify-center items-center gap-6">
+                            {navItems.map(({ label, icon }) => (
                                 <NavIcon
                                     key={label}
                                     icon={icon}
                                     label={label}
-                                    isActive={activePage === label}
-                                    onClick={() => setActivePage(label)}
+                                    isActive={
+                                        showLoginPrompt
+                                            ? intendedPage === label
+                                            : activePage === label
+                                    }
+                                    onClick={() => handlePageChange(label)}
                                 />
                             ))}
-                    </div>
+                        </div>
 
-                    {/* Right: Menu icon */}
-                    <div className="flex-none">
-                        <button className="text-black p-2" aria-label="Menu">
-                            <Menu className="w-6 h-6" />
-                        </button>
+                        {/* Right: Menu icon */}
+                        <div className="flex-none relative">
+                            <button
+                                className="text-black p-2"
+                                aria-label="Menu"
+                                onClick={() => setShowMenu(!showMenu)}
+                            >
+                                <Menu className="w-6 h-6" />
+                            </button>
+
+                            {/* Only show reset option if storage preference is set */}
+                            {showMenu && hasStoragePref && (
+                                <MenuDropdown
+                                    onReset={handleReset}
+                                    onClose={() => setShowMenu(false)}
+                                />
+                            )}
+                        </div>
                     </div>
+                </div>
+
+                {/* Content Area */}
+                <div className="w-full flex-grow">
+                    {renderContent()}
                 </div>
             </div>
 
-            {/*Game Grid*/}
-            <div className="container mx-auto px-4 py-8 flex flex-col items-center">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl place-items-center">
-                    {
-                        games.map((game) => (
-                            <GameCard
-                                key={game.title}
-                                {...game}
-                                animationControls={animationControls}
-                                // todo: Add Redirects
-                                onClick={() => alert(`You Selected: ${game.title}`)}
-                            />
-                        ))
-                    }
+            {/* Login Prompt Overlay */}
+            {showLoginPrompt && (
+                <div className="fixed inset-0 z-40 pointer-events-none">
+                    <div className="absolute inset-0 bg-black bg-opacity-50 pointer-events-auto" />
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
+                        <LoginPrompt
+                            onClose={handleLoginClose}
+                            onStorageSet={handlgeLoginSuccess}
+                        />
+                    </div>
                 </div>
-            </div>
-        </div>
+            )}
+        </>
     );
 }
-
