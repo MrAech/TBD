@@ -26,7 +26,7 @@ export const  HistoryView: React.FC<HistoryViewProp> = ({ onStorageChange }) => 
 
     useEffect(() =>{
         if(storagePref === undefined){
-            setStorageLoginPrompt(true);
+            setShowLoginPrompt(true);
         }else{
             setHistory(getFullHistory());
         }
@@ -72,7 +72,7 @@ export const  HistoryView: React.FC<HistoryViewProp> = ({ onStorageChange }) => 
                             setShowLoginPrompt(false);
                             refreshHistory();
                         }}
-                        onSotrageSet={() => {
+                        onStorageSet={() => {
                             onStorageChange?.();
                             refreshHistory();
                         }}
